@@ -39,7 +39,6 @@ async def visual_glm(request: Request):
     }
     input_para.update(request_data)
 
-    is_zh = is_chinese(input_text)
     image_path = process_image(input_image_encoded)
     answer, history = model.chat(tokenizer, image_path, input_text, history, max_length=input_para['max_length'],
                                                top_p=input_para['top_p'],
