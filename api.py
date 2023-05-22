@@ -43,7 +43,7 @@ async def visual_glm(request: Request):
     input_image, gen_kwargs =  input_data['input_image'], input_data['gen_kwargs']
     answer, history = model.chat(tokenizer, image_path, input_text, history, max_length=gen_kwargs['max_length'],
                                                top_p=gen_kwargs['top_p'],
-                                               temperature=gen_kwargs['temperature']):
+                                               temperature=gen_kwargs['temperature'])
         
     now = datetime.datetime.now()
     time = now.strftime("%Y-%m-%d %H:%M:%S")
