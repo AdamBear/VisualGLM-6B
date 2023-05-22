@@ -2,6 +2,7 @@ import os
 import json
 import uvicorn
 from fastapi import FastAPI, Request
+from transformers import AutoTokenizer, AutoModel
 from model import is_chinese, generate_input, chat
 import datetime
 
