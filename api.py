@@ -3,7 +3,7 @@ import json
 import uvicorn
 from fastapi import FastAPI, Request
 from transformers import AutoTokenizer, AutoModel
-from model import is_chinese, generate_input
+from model import process_image
 import datetime
 
 import torch
@@ -27,6 +27,7 @@ async def visual_glm(request: Request):
 
     json_post = json.dumps(json_post_raw)
     request_data = json.loads(json_post)
+    
     input_text, input_image_encoded, history = request_data['text'], request_data['image'], request_data['history']
     input_para = {
         "max_length": 2048,
@@ -39,11 +40,10 @@ async def visual_glm(request: Request):
     input_para.update(request_data)
 
     is_zh = is_chinese(input_text)
-    input_data = generate_input(input_text, input_image_encoded, history, input_para)
-    input_image, gen_kwargs =  input_data['input_image'], input_data['gen_kwargs']
-    answer, history = model.chat(tokenizer, input_image, input_text, history, max_length=gen_kwargs['max_length'],
-                                               top_p=gen_kwargs['top_p'],
-                                               temperature=gen_kwargs['temperature'])
+    image_path = process_image(input_image_encoded)
+    answer, history = model.chat(tokenizer, image_path, input_text, history, max_length=input_para['max_length'],
+                                               top_p=input_para['top_p'],
+                                               temperature=input_para['temperature'])
         
     now = datetime.datetime.now()
     time = now.strftime("%Y-%m-%d %H:%M:%S")
