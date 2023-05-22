@@ -2,13 +2,15 @@ import os
 import json
 import uvicorn
 from fastapi import FastAPI, Request
-from model import is_chinese, get_infer_setting, generate_input, chat
+from model import is_chinese, generate_input, chat
 import datetime
 
 import torch
 
 gpu_number = 0
-model, tokenizer = get_infer_setting(gpu_device=gpu_number)
+tokenizer = AutoTokenizer.from_pretrained("/data/visualglm-6b", trust_remote_code=True)
+model = AutoModel.from_pretrained("/data/visualglm-6b", trust_remote_code=True).half().cuda()
+model = model.eval()
 
 
 from fastapi import Depends, HTTPException, status
