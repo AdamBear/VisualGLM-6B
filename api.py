@@ -5,6 +5,12 @@ from fastapi import FastAPI, Request
 from model import is_chinese, get_infer_setting, generate_input, chat
 import datetime
 
+import torch
+
+gpu_number = 0
+model, tokenizer = get_infer_setting(gpu_device=gpu_number)
+
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
@@ -38,13 +44,13 @@ async def visual_glm(request: Request):
         
     now = datetime.datetime.now()
     time = now.strftime("%Y-%m-%d %H:%M:%S")
-    answer = {
+    response = {
         "result": answer,
         "history": history,
         "status": 200,
         "time": time
     }
-    return answer
+    return response
 
 
 def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
