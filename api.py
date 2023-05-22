@@ -41,7 +41,7 @@ async def visual_glm(request: Request):
     is_zh = is_chinese(input_text)
     input_data = generate_input(input_text, input_image_encoded, history, input_para)
     input_image, gen_kwargs =  input_data['input_image'], input_data['gen_kwargs']
-    answer, history = model.chat(tokenizer, image_path, input_text, history, max_length=gen_kwargs['max_length'],
+    answer, history = model.chat(tokenizer, input_image, input_text, history, max_length=gen_kwargs['max_length'],
                                                top_p=gen_kwargs['top_p'],
                                                temperature=gen_kwargs['temperature'])
         
