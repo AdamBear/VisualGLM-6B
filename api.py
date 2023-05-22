@@ -80,4 +80,4 @@ def read_current_user(username: str = Depends(get_current_username)):
     return {"username": username}
 
 if __name__ == '__main__':
-    uvicorn.run("api.app", host='0.0.0.0', port=6006, workers=1, reload=True)
+    uvicorn.run(app, host='0.0.0.0', port=6006, workers=1)
