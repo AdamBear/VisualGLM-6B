@@ -15,9 +15,8 @@ model = model.eval()
 
 app = FastAPI()
 @app.post('/')
-def visual_glm(request: Request):
-    # json_post_raw = await request.json()
-    json_post_raw = request.json()
+async def visual_glm(request: Request):
+    json_post_raw = await request.json()
     print("Start to process request")
 
     json_post = json.dumps(json_post_raw)
