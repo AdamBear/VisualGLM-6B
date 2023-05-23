@@ -7,8 +7,8 @@ import datetime
 from model import process_image
 import torch
 
-tokenizer = AutoTokenizer.from_pretrained("THUDM/visualglm-6b", trust_remote_code=True)
-model = AutoModel.from_pretrained("THUDM/visualglm-6b", trust_remote_code=True).half().cuda()
+tokenizer = AutoTokenizer.from_pretrained("/data/visualglm-6b", trust_remote_code=True)
+model = AutoModel.from_pretrained("/data/visualglm-6b", trust_remote_code=True).half().cuda()
 
 
 app = FastAPI()
