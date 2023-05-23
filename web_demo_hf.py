@@ -117,4 +117,4 @@ with gr.Blocks() as demo:
 
     emptyBtn.click(reset_state, outputs=[image_path, chatbot, history], show_progress=True)
 
-demo.queue().launch(share=False, auth=("test", "258258258"), server_port=8008)
+demo.queue().launch(share=False, auth=("test", "258258258"), server_port=6006)
