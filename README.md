@@ -9,11 +9,13 @@
 <p align="center">
     👋 加入我们的 <a href="https://join.slack.com/t/chatglm/shared_invite/zt-1th2q5u69-7tURzFuOPanmuHy9hsZnKA" target="_blank">Slack</a> 和 <a href="resources/WECHAT.md" target="_blank">WeChat</a>
 </p>
-<p align="center">
+<!-- <p align="center">
 🤖<a href="https://huggingface.co/spaces/THUDM/visualglm-6b" target="_blank">VisualGLM-6B在线演示网站</a>
-</p>
+</p> -->
 
 ## 介绍
+
+VisualGLM-6B is an open-source, multi-modal dialog language model that supports **images, Chinese, and English**. The language model is based on [ChatGLM-6B](https://github.com/THUDM/ChatGLM-6B) with 6.2 billion parameters; the image part builds a bridge between the visual model and the language model through the training of [BLIP2-Qformer](https://arxiv.org/abs/2301.12597), with the total model comprising 7.8 billion parameters. **[Click here for English version.](README_en.md)**
 
 VisualGLM-6B 是一个开源的，支持**图像、中文和英文**的多模态对话语言模型，语言模型基于 [ChatGLM-6B](https://github.com/THUDM/ChatGLM-6B)，具有 62 亿参数；图像部分通过训练 [BLIP2-Qformer](https://arxiv.org/abs/2301.12597) 构建起视觉模型与语言模型的桥梁，整体模型共78亿参数。
 
@@ -25,23 +27,6 @@ VisualGLM-6B 由 [SwissArmyTransformer](https://github.com/THUDM/SwissArmyTransf
 
 结合模型量化技术，用户可以在消费级的显卡上进行本地部署（INT4量化级别下最低只需8.7G显存）。
 
-<details>
-<summary> VisualGLM-6B is an open-source, multimodal conversational language model that supports <b>images, Chinese, and English</b>.
-    Click to expand the English verison. </summary>
-<br>
- 
-VisualGLM-6B is an open-source, multimodal conversational language model that supports **images, Chinese, and English**. The language model is based on [ChatGLM-6B](https://github.com/THUDM/ChatGLM-6B), with 6.2 billion parameters; the image part is bridged to the language model by training [BLIP2-Qformer](https://arxiv.org/abs/2301.12597), making the total model parameters amount to 7.8 billion.
-
-VisualGLM-6B relies on 30 million high-quality Chinese image-text pairs from the [CogView](https://arxiv.org/abs/2105.13290) dataset, and 300 million selected English image-text pairs for pre-training, with equal weights for Chinese and English. This training method aligns visual information well with the semantic space of ChatGLM. In the fine-tuning stage, the model is trained on a long visual question-answering dataset to generate answers that are in line with human preferences.
-
-VisualGLM-6B is trained using the [SwissArmyTransformer](https://github.com/THUDM/SwissArmyTransformer) (short for `sat`) library, a toolkit supporting flexible modification and training of Transformers, as well as efficient parameter fine-tuning methods such as Lora and P-tuning. This project provides an interface that aligns with user habits in huggingface, as well as an interface based on sat.
-
-However, as VisualGLM-6B is still in its v1 version, it is known to have quite a few [**limitations**](#limitations), such as factual/illusion issues in image descriptions, inadequate capture of image detail information, and some limitations from the language model. Please understand these issues before use and evaluate potential risks. These issues will be the focus of optimization in future versions of VisualGLM.
-
-By integrating model quantization technology, users can deploy locally on consumer-grade graphics cards (requiring only 8.7G of video memory at the INT4 quantization level).
-</details>
-
-<!-- *Read this in [English](README_en.md). TODO* -->
 
 ## 样例
 VisualGLM-6B 可以进行图像的描述的相关知识的问答。
@@ -62,16 +47,18 @@ VisualGLM-6B 可以进行图像的描述的相关知识的问答。
 
 使用pip安装依赖
 ```
-pip install -r requirements.txt
+pip install -i https://pypi.org/simple -r requirements.txt
+# 国内请使用aliyun镜像，TUNA等镜像同步最近出现问题，命令如下
+pip install -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 ```
-尽量使用标准PyPI源以下载较新的sat包，TUNA源等可能同步较慢。`pip install -i https://pypi.org/simple -r requirements.txt`。
-此时默认会安装`deepspeed`库（支持`sat`库训练），此库对于模型推理并非必要，同时部分Windows环境安装此库时会遇到问题。如果想绕过`deepspeed`安装，我们可以将命令改为
+此时默认会安装`deepspeed`库（支持`sat`库训练），此库对于模型推理并非必要，同时部分Windows环境安装此库时会遇到问题。
+如果想绕过`deepspeed`安装，我们可以将命令改为
 ```
-pip install -r requirements_wo_ds.txt
-pip install --no-deps "SwissArmyTransformer>=0.3.6"
+pip install -i https://mirrors.aliyun.com/pypi/simple/ -r requirements_wo_ds.txt
+pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-deps "SwissArmyTransformer>=0.3.6"
 ```
 
-如果使用Huggingface transformers库调用模型，可以通过如下代码（其中图像路径为本地路径）：
+如果使用Huggingface transformers库调用模型（**也需要安装上述依赖包！**），可以通过如下代码（其中图像路径为本地路径）：
 ```python
 from transformers import AutoTokenizer, AutoModel
 tokenizer = AutoTokenizer.from_pretrained("THUDM/visualglm-6b", trust_remote_code=True)
@@ -101,6 +88,77 @@ print(response)
 使用`sat`库也可以轻松进行进行参数高效微调。<!-- TODO 具体代码 -->
 
 请注意，`Huggingface`模型的实现位于[Huggingface的仓库](https://huggingface.co/THUDM/visualglm-6b)中，`sat`模型的实现包含于本仓库中。
+
+## 模型微调
+
+多模态任务分布广、种类多，预训练往往不能面面俱到。
+这里我们提供了一个小样本微调的例子，使用20张标注图增强模型回答“背景”问题的能力。
+
+解压`fewshot-data.zip`以后运行如下命令：
+```
+bash finetune/finetune_visualglm.sh
+```
+
+训练好以后可以使用如下命令推理：
+
+```
+python cli_demo.py --from_pretrained your_checkpoint_path --prompt_zh 这张图片的背景里有什么内容？
+```
+
+<details>
+<summary>微调前后的效果对比</summary>
+
+微调前：
+
+```
+欢迎使用 VisualGLM-6B 模型，输入图像URL或本地路径读图，继续输入内容对话，clear 重新开始，stop 终止程序
+请输入图像路径或URL（回车进入纯文本对话）： fewshot-data/2p.png
+用户：这张图片的背景里有什么内容？
+VisualGLM-6B：人们总是被生活琐事所困扰，无法摆脱束缚.
+用户：clear
+请输入图像路径或URL（回车进入纯文本对话）： fewshot-data/meme.png
+用户：这张图片的背景里有什么内容？
+VisualGLM-6B：这张图片的背景是一张狗的图片，它躺在木地板上。
+用户：clear
+请输入图像路径或URL（回车进入纯文本对话）： fewshot-data/passport.png
+用户：这张图片的背景里有什么内容？
+VisualGLM-6B：这张图片的背景是一台电脑键盘和两张护照。
+用户：clear
+请输入图像路径或URL（回车进入纯文本对话）：
+```
+
+微调后：
+
+```
+欢迎使用 VisualGLM-6B 模型，输入图像URL或本地路径读图，继续输入内容对话，clear 重新开始，stop 终止程序
+请输入图像路径或URL（回车进入纯文本对话）： fewshot-data/2p.png
+用户：这张图片的背景里有什么内容？
+VisualGLM-6B：这张图片的背景是雨天，
+用户：描述一下这张图片。
+VisualGLM-6B：这张图片描绘了雨天的情景，雨水淅淅沥沥地落在地面上。人们穿着雨衣或雨伞，走在雨中，似乎在寻找着什么.
+用户：clear
+请输入图像路径或URL（回车进入纯文本对话）： fewshot-data/meme.png
+用户：这张图片的背景里有什么内容？
+VisualGLM-6B：这张图片的背景是木质地板。
+用户：什么颜色的地板
+VisualGLM-6B：这张图片的背景是蓝色的。
+用户：描述一下这张图片。
+VisualGLM-6B：这张图片描绘了一只棕色的小狗躺在蓝色的木质地板上。
+用户：clear
+请输入图像路径或URL（回车进入纯文本对话）： fewshot-data/passport.png
+用户：这张图片的背景里有什么内容？
+VisualGLM-6B：这张图片的背景是电脑键盘。
+用户：描述一下这张图片。
+VisualGLM-6B：这张图片的特点是电脑键盘和护照。
+用户：有几张护照    
+VisualGLM-6B：两张护照。
+用户：clear
+请输入图像路径或URL（回车进入纯文本对话）：
+```
+
+</details>
+
+微调需要安装`deepspeed`库，目前本流程仅支持linux系统，更多的样例说明和Windows系统的流程说明将在近期完成。
 
 ## 部署工具
 
@@ -145,19 +203,22 @@ git clone https://github.com/THUDM/VisualGLM-6B
 cd VisualGLM-6B
 python web_demo.py
 ```
-程序会自动下载sat模型，并运行一个 Web Server，并输出地址。在浏览器中打开输出的地址即可使用。`--quant 4`使用4比特量化减少显存占用。
+程序会自动下载 sat 模型，并运行一个 Web Server，并输出地址。在浏览器中打开输出的地址即可使用。
 
-我们也提供了继承自`ChatGLM-6B`的打字机效果网页版工具，此工具使用Huggingface模型：
+
+我们也提供了继承自`ChatGLM-6B`的打字机效果网页版工具，此工具使用 Huggingface 模型，启动后将运行在`:8080`端口上：
 ```shell
 python web_demo_hf.py
 ```
+
+两种网页版 demo 均接受命令行参数`--share`以生成 gradio 公开链接，接受`--quant 4`和`--quant 8`以分别使用4比特量化/8比特量化减少显存占用。
 
 ### API部署
 首先需要安装额外的依赖 `pip install fastapi uvicorn`，然后运行仓库中的 [api.py](api.py)：
 ```shell
 python api.py
 ```
-程序会自动下载sat模型，默认部署在本地的 8080 端口，通过 POST 方法进行调用。下面是用`curl`请求的例子，一般而言可以也可以使用代码方法进行POST。
+程序会自动下载 sat 模型，默认部署在本地的 8080 端口，通过 POST 方法进行调用。下面是用`curl`请求的例子，一般而言可以也可以使用代码方法进行POST。
 ```shell
 echo "{\"image\":\"$(base64 path/to/example.jpg)\",\"text\":\"描述这张图片\",\"history\":[]}" > temp.json
 curl -X POST -H "Content-Type: application/json" -d @temp.json http://127.0.0.1:8080
@@ -171,6 +232,12 @@ curl -X POST -H "Content-Type: application/json" -d @temp.json http://127.0.0.1:
     "time":"2023-05-16 20:20:10"
   }
 ```
+
+我们也提供了使用Huggingface模型的 [api_hf.py](api_hf.py)，用法和sat模型的api一致：
+```shell
+python api_hf.py
+```
+
 
 ## 模型量化
 在Huggingface实现中，模型默认以 FP16 精度加载，运行上述代码需要大概 15GB 显存。如果你的 GPU 显存有限，可以尝试以量化方式加载模型。
@@ -195,7 +262,7 @@ model = quantize(model.transformer, args.quant).cuda()
 - 由于数据等方面原因，模型暂时不具有中文ocr的能力（英文ocr能力有一些），我们会在后续版本中增加这个能力。
 ## 协议
 
-本仓库的代码依照 [Apache-2.0](LICENSE) 协议开源，VisualGLM-6B 模型的权重的使用则需要遵循 [Model License](MODEL_LICENSE)。
+本仓库的代码依照 [Apache-2.0](LICENSE.txt) 协议开源，VisualGLM-6B 模型的权重的使用则需要遵循 [Model License](MODEL_LICENSE.txt)。
 
 ## 引用与致谢
 如果你觉得我们的工作有帮助的话，请考虑引用下列论文

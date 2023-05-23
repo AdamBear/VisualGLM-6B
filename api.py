@@ -5,7 +5,6 @@ from fastapi import FastAPI, Request
 from transformers import AutoTokenizer, AutoModel
 from model import process_image
 import datetime
-
 import torch
 
 gpu_number = 0
@@ -13,11 +12,6 @@ tokenizer = AutoTokenizer.from_pretrained("/data/visualglm-6b", trust_remote_cod
 model = AutoModel.from_pretrained("/data/visualglm-6b", trust_remote_code=True).half().cuda()
 model = model.eval()
 
-
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
-
-security = HTTPBasic()
 
 app = FastAPI()
 @app.post('/')
@@ -39,6 +33,7 @@ async def visual_glm(request: Request):
     }
     input_para.update(request_data)
 
+
     image_path = process_image(input_image_encoded)
     answer, history = model.chat(tokenizer, image_path, input_text, history, max_length=input_para['max_length'],
                                                top_p=input_para['top_p'],
@@ -54,30 +49,6 @@ async def visual_glm(request: Request):
     }
     return response
 
-
-def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
-    current_username_bytes = credentials.username.encode("utf8")
-    correct_username_bytes = b"test"
-    is_correct_username = secrets.compare_digest(
-        current_username_bytes, correct_username_bytes
-    )
-    current_password_bytes = credentials.password.encode("utf8")
-    correct_password_bytes = b"258258258"
-    is_correct_password = secrets.compare_digest(
-        current_password_bytes, correct_password_bytes
-    )
-    if not (is_correct_username and is_correct_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-    return credentials.username
-
-
-@app.get("/users/me")
-def read_current_user(username: str = Depends(get_current_username)):
-    return {"username": username}
 
 if __name__ == '__main__':
     uvicorn.run(app, host='0.0.0.0', port=6006, workers=1)
