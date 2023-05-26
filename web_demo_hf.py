@@ -4,7 +4,7 @@ import mdtex2html
 
 
 tokenizer = AutoTokenizer.from_pretrained("/data/visualglm-6b", trust_remote_code=True)
-model = AutoModel.from_pretrained("/data/visualglm-6b", trust_remote_code=True).half().quantize(8).cuda()
+model = AutoModel.from_pretrained("/data/visualglm-6b", trust_remote_code=True).half().cuda()
 model = model.eval()
 
 import torch
