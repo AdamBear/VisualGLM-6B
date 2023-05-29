@@ -46,4 +46,11 @@ async def visual_glm(request: Request):
 
 
 if __name__ == "__main__":
-   uvicorn.run(app, host='0.0.0.0', port=6006, workers=1)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--gpu", choices=[-1, 0, 1, 2, 3, 4, 5, 6, 7], type=int, default=-1)
+    args = parser.parse_args()
+    if args.gpu < 0:
+        uvicorn.run(app, host='0.0.0.0', port=6006, workers=1)
+    else:
+        uvicorn.run(app, host='0.0.0.0', port=57000 + args.gpu, workers=1)
