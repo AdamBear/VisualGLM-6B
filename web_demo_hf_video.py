@@ -94,7 +94,7 @@ NOTES = 'This app is adapted from <a href="https://github.com/THUDM/VisualGLM-6B
 
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument("--quant", choices=[8, 4], type=int, default=0)
+parser.add_argument("--quant", choices=[8, 4, 0], type=int, default=0)
 parser.add_argument("--share", action="store_true")
 args = parser.parse_known_args()
 
