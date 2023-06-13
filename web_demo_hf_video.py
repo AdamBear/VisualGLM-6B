@@ -95,6 +95,7 @@ parser.add_argument("--quant", choices=[8, 4], type=int, default=None)
 parser.add_argument("--share", action="store_true")
 args = parser.parse_known_args()
 
+tokenizer = None
 model = None
 
 if not tokenizer:
