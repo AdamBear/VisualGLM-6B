@@ -96,7 +96,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--quant", choices=[8, 4, 0], type=int, default=0)
 parser.add_argument("--share", action="store_true")
-args = parser.parse_known_args()
+args, unknown = parser.parse_known_args()
 
 tokenizer = None
 model = None
