@@ -144,9 +144,10 @@ with gr.Blocks(css='style.css') as demo:
     submitBtn.click(reset_user_input, [], [user_input])
     emptyBtn.click(reset_state, outputs=[image_path, chatbot, history], show_progress=True)
 
+demo.queue(concurrency_count=10).launch(share=False, inbrowser=False, server_name='0.0.0.0', server_port=6006)
 
-if __name__ == '__main__':
-    print(gr.__version__)
-    demo.launch(server_port=6006)
+# if __name__ == '__main__':
+#     print(gr.__version__)
+#     demo.launch(server_port=6006)
     #demo.queue(concurrency_count=10).launch(share=False, inbrowser=False, server_name='0.0.0.0', server_port=6006)
     #demo.queue(concurrency_count=10).launch(share=False, auth=("test", "258258258"), inbrowser=False, server_name='0.0.0.0', server_port=6006)
