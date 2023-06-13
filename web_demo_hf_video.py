@@ -147,5 +147,6 @@ with gr.Blocks(css='style.css') as demo:
 
 if __name__ == '__main__':
     print(gr.__version__)
-    demo.queue(concurrency_count=10).launch(share=False, inbrowser=False, server_name='0.0.0.0', server_port=6006)
+    demo.launch()
+    #demo.queue(concurrency_count=10).launch(share=False, inbrowser=False, server_name='0.0.0.0', server_port=6006)
     #demo.queue(concurrency_count=10).launch(share=False, auth=("test", "258258258"), inbrowser=False, server_name='0.0.0.0', server_port=6006)
