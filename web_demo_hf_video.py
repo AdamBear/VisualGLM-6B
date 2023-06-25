@@ -132,7 +132,7 @@ with gr.Blocks(css='style.css') as demo:
                     with gr.Column(scale=1, min_width=64):
                         submitBtn = gr.Button("Submit", variant="primary")
                         emptyBtn = gr.Button("Clear History")
-                gr.Markdown(MAINTENANCE_NOTICE + '\n' + NOTES)
+                gr.Markdown("网站名称：魔法乐园 备案号：[闽ICP备2022018097号-9](https://beian.miit.gov.cn) 公司名称： 厦门慧快脉信息技术有限公司")
     history = gr.State([])
 
 
