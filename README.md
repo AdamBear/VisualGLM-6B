@@ -7,7 +7,7 @@
 •  📃 <a href="https://arxiv.org/abs/2105.13290" target="_blank">[CogView@NeurIPS 21]</a>  <a href="https://github.com/THUDM/CogView" target="_blank">[GitHub]</a> • 📃 <a href="https://arxiv.org/abs/2103.10360" target="_blank">[GLM@ACL 22]</a> <a href="https://github.com/THUDM/GLM" target="_blank">[GitHub]</a> <br>
 </p>
 <p align="center">
-    👋 加入我们的 <a href="https://join.slack.com/t/chatglm/shared_invite/zt-1th2q5u69-7tURzFuOPanmuHy9hsZnKA" target="_blank">Slack</a> 和 <a href="resources/WECHAT.md" target="_blank">WeChat</a>
+    👋 加入我们的 <a href="https://join.slack.com/t/chatglm/shared_invite/zt-1th2q5u69-7tURzFuOPanmuHy9hsZnKA" target="_blank">Slack</a> 和 <a href="examples/WECHAT.md" target="_blank">WeChat</a>
 </p>
 <!-- <p align="center">
 🤖<a href="https://huggingface.co/spaces/THUDM/visualglm-6b" target="_blank">VisualGLM-6B在线演示网站</a>
@@ -23,10 +23,13 @@ VisualGLM-6B 依靠来自于 [CogView](https://arxiv.org/abs/2105.13290) 数据�
 
 VisualGLM-6B 由 [SwissArmyTransformer](https://github.com/THUDM/SwissArmyTransformer)(简称`sat`) 库训练，这是一个支持Transformer灵活修改、训练的工具库，支持Lora、P-tuning等参数高效微调方法。本项目提供了符合用户习惯的huggingface接口，也提供了基于sat的接口。
 
-不过，由于 VisualGLM-6B 仍处于v1版本，目前已知其具有相当多的[**局限性**](#局限性)，如图像描述事实性/模型幻觉问题，图像细节信息捕捉不足，以及一些来自语言模型的局限性。请大家在使用前了解这些问题，评估可能存在的风险。在VisualGLM之后的版本中，将会着力对此类问题进行优化。
-
 结合模型量化技术，用户可以在消费级的显卡上进行本地部署（INT4量化级别下最低只需8.7G显存）。
 
+-----
+
+VisualGLM-6B 开源模型旨在与开源社区一起推动大模型技术发展，恳请开发者和大家遵守开源协议，勿将该开源模型和代码及基于该开源项目产生的衍生物用于任何可能给国家和社会带来危害的用途以及用于任何未经过安全评估和备案的服务。目前，本项目官方未基于 VisualGLM-6B 开发任何应用，包括网站、安卓App、苹果 iOS应用及 Windows App 等。
+
+由于 VisualGLM-6B 仍处于v1版本，目前已知其具有相当多的[**局限性**](README.md#局限性)，如图像描述事实性/模型幻觉问题，图像细节信息捕捉不足，以及一些来自语言模型的局限性。尽管模型在训练的各个阶段都尽力确保数据的合规性和准确性，但由于 VisualGLM-6B 模型规模较小，且模型受概率随机性因素影响，无法保证输出内容的准确性，且模型易被误导（详见局限性部分）。在VisualGLM之后的版本中，将会着力对此类问题进行优化。本项目不承担开源模型和代码导致的数据安全、舆情风险或发生任何模型被误导、滥用、传播、不当利用而产生的风险和责任。
 
 ## 样例
 VisualGLM-6B 可以进行图像的描述的相关知识的问答。
@@ -40,6 +43,14 @@ VisualGLM-6B 可以进行图像的描述的相关知识的问答。
 
 </details>
 
+## 友情链接
+
+* [XrayGLM](https://github.com/WangRongsheng/XrayGLM) 是基于visualGLM-6B在X光诊断数据集上微调的X光诊断问答的项目，能根据X光片回答医学相关询问。
+<details>
+<summary>点击查看样例</summary>
+
+![样例](https://github.com/WangRongsheng/XrayGLM/raw/main/assets/images/xrayglm.png)
+</details>
 
 ## 使用
 
@@ -69,25 +80,24 @@ print(response)
 response, history = model.chat(tokenizer, image_path, "这张图片可能是在什么场所拍摄的？", history=history)
 print(response)
 ```
+以上代码会由 `transformers` 自动下载模型实现和参数。完整的模型实现可以在 [Hugging Face Hub](https://huggingface.co/THUDM/visualglm-6b)。如果你从 Hugging Face Hub 上下载模型参数的速度较慢，可以从[这里](https://cloud.tsinghua.edu.cn/d/43ffb021ca5f4897b56a/)手动下载模型参数文件，并从本地加载模型。具体做法请参考[从本地加载模型](https://github.com/THUDM/ChatGLM-6B#%E4%BB%8E%E6%9C%AC%E5%9C%B0%E5%8A%A0%E8%BD%BD%E6%A8%A1%E5%9E%8B)。关于基于 transformers 库模型的量化、CPU推理、Mac MPS 后端加速等内容，请参考 [ChatGLM-6B 的低成本部署](https://github.com/THUDM/ChatGLM-6B#%E4%BD%8E%E6%88%90%E6%9C%AC%E9%83%A8%E7%BD%B2)。
 
 如果使用SwissArmyTransformer库调用模型，方法类似，可以使用环境变量`SAT_HOME`决定模型下载位置。在本仓库目录下：
 ```python
->>> import argparse
->>> from transformers import AutoTokenizer
->>> tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm-6b", trust_remote_code=True)
->>> from model import chat, VisualGLMModel
->>> model, model_args = VisualGLMModel.from_pretrained('visualglm-6b', args=argparse.Namespace(fp16=True, skip_init=True))
->>> from sat.model.mixins import CachedAutoregressiveMixin
->>> model.add_mixin('auto-regressive', CachedAutoregressiveMixin())
->>> image_path = "your image path or URL"
->>> response, history, cache_image = chat(image_path, model, tokenizer, "描述这张图片。", history=[])
->>> print(response)
->>> response, history, cache_image = chat(None, model, tokenizer, "这张图片可能是在什么场所拍摄的？", history=history, image=cache_image)
->>> print(response)
+import argparse
+from transformers import AutoTokenizer
+tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm-6b", trust_remote_code=True)
+from model import chat, VisualGLMModel
+model, model_args = VisualGLMModel.from_pretrained('visualglm-6b', args=argparse.Namespace(fp16=True, skip_init=True))
+from sat.model.mixins import CachedAutoregressiveMixin
+model.add_mixin('auto-regressive', CachedAutoregressiveMixin())
+image_path = "your image path or URL"
+response, history, cache_image = chat(image_path, model, tokenizer, "描述这张图片。", history=[])
+print(response)
+response, history, cache_image = chat(None, model, tokenizer, "这张图片可能是在什么场所拍摄的？", history=history, image=cache_image)
+print(response)
 ```
 使用`sat`库也可以轻松进行进行参数高效微调。<!-- TODO 具体代码 -->
-
-请注意，`Huggingface`模型的实现位于[Huggingface的仓库](https://huggingface.co/THUDM/visualglm-6b)中，`sat`模型的实现包含于本仓库中。
 
 ## 模型微调
 
@@ -98,6 +108,12 @@ print(response)
 ```
 bash finetune/finetune_visualglm.sh
 ```
+
+目前支持三种方式的微调：
+
+* LoRA：样例中为ChatGLM模型的第0层和第14层加入了rank=10的LoRA微调，可以根据具体情景和数据量调整`--layer_range`和`--lora_rank`参数。
+* QLoRA：如果资源有限，可以考虑使用`bash finetune/finetune_visualglm_qlora.sh`，QLoRA将ChatGLM的线性层进行了4-bit量化，只需要9.8GB显存即可微调。
+* P-tuning：可以将`--use_lora`替换为`--use_ptuning`，不过不推荐使用，除非模型应用场景非常固定。
 
 训练好以后可以使用如下命令推理：
 
@@ -157,6 +173,27 @@ VisualGLM-6B：两张护照。
 ```
 
 </details>
+
+如果希望把LoRA部分的参数合并到原始的权重，可以调用`merge_lora()`，例如：
+
+```python
+from finetune_visualglm import FineTuneVisualGLMModel
+import argparse
+
+model, args = FineTuneVisualGLMModel.from_pretrained('checkpoints/finetune-visualglm-6b-05-19-07-36',
+        args=argparse.Namespace(
+        fp16=True,
+        skip_init=True,
+        use_gpu_initialization=True,
+        device='cuda',
+    ))
+model.get_mixin('lora').merge_lora()
+args.layer_range = []
+args.save = 'merge_lora'
+args.mode = 'inference'
+from sat.training.model_io import save_checkpoint
+save_checkpoint(1, model, None, None, args)
+```
 
 微调需要安装`deepspeed`库，目前本流程仅支持linux系统，更多的样例说明和Windows系统的流程说明将在近期完成。
 
