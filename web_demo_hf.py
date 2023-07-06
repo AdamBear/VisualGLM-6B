@@ -1,5 +1,8 @@
 from transformers import AutoModel, AutoTokenizer
+import gradio as gr
 
+tokenizer = AutoTokenizer.from_pretrained("/data/visualglm-6b", trust_remote_code=True)
+model = AutoModel.from_pretrained("/data/visualglm-6b", trust_remote_code=True).half().cuda()
 model = model.eval()
 
 import torch
@@ -59,7 +62,7 @@ def predict(input, image_path, chatbot, max_length, top_p, temperature, history)
     chatbot.append((parse_text(input), ""))
     with torch.no_grad():
         for response, history in model.stream_chat(tokenizer, image_path, input, history, max_length=max_length, top_p=top_p,
-                                               temperature=temperature):
+                                                   temperature=temperature):
             chatbot[-1] = (parse_text(input), parse_text(response))
 
             yield chatbot, history
@@ -70,8 +73,8 @@ def predict_new_image(image_path, chatbot, max_length, top_p, temperature):
     chatbot.append((parse_text(input), ""))
     with torch.no_grad():
         for response, history in model.stream_chat(tokenizer, image_path, input, history, max_length=max_length,
-                                               top_p=top_p,
-                                               temperature=temperature):
+                                                   top_p=top_p,
+                                                   temperature=temperature):
             chatbot[-1] = (parse_text(input), parse_text(response))
 
             yield chatbot, history
@@ -89,59 +92,62 @@ DESCRIPTION = '''<h1 align="center"><a href="https://github.com/THUDM/VisualGLM-
 MAINTENANCE_NOTICE = 'Hint 1: If the app report "Something went wrong, connection error out", please turn off your proxy and retry.\nHint 2: If you upload a large size of image like 10MB, it may take some time to upload and process. Please be patient and wait.'
 NOTES = 'This app is adapted from <a href="https://github.com/THUDM/VisualGLM-6B">https://github.com/THUDM/VisualGLM-6B</a>. It would be recommended to check out the repo if you want to see the detail of our model and training process.'
 
-def main(args):
-    global model, tokenizer
-    if not tokenizer: 
-        tokenizer = AutoTokenizer.from_pretrained("/data/visualglm-6b", trust_remote_code=True)
-    if not model:
-        if args.quant in [4, 8]:
-            model = AutoModel.from_pretrained("/data/visualglm-6b", trust_remote_code=True).quantize(args.quant).half().cuda()
-        else:
-            model = AutoModel.from_pretrained("/data/visualglm-6b", trust_remote_code=True).half().cuda()
-        model = model.eval()
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--quant", choices=[8, 4, 0], type=int, default=0)
+parser.add_argument("--share", action="store_true")
+args, unknown = parser.parse_known_args()
 
-    with gr.Blocks(css='style.css') as demo:
-        gr.HTML(DESCRIPTION)
-        
-        with gr.Row():
-            with gr.Column(scale=2):
-                image_path = gr.Image(type="filepath", label="Image Prompt", value=None).style(height=504)
-            with gr.Column(scale=4):
-                chatbot = gr.Chatbot().style(height=480)
-        with gr.Row():
-            with gr.Column(scale=2, min_width=100):
-                max_length = gr.Slider(0, 4096, value=2048, step=1.0, label="Maximum length", interactive=True)
-                top_p = gr.Slider(0, 1, value=0.4, step=0.01, label="Top P", interactive=True)
-                temperature = gr.Slider(0, 1, value=0.8, step=0.01, label="Temperature", interactive=True)
-            with gr.Column(scale=4):
-                with gr.Box():
-                    with gr.Row():
-                        with gr.Column(scale=2):
-                            user_input = gr.Textbox(show_label=False, placeholder="Input...", lines=4).style(
-                                container=False)
-                        with gr.Column(scale=1, min_width=64):
-                            submitBtn = gr.Button("Submit", variant="primary")
-                            emptyBtn = gr.Button("Clear History")
-                    gr.Markdown(MAINTENANCE_NOTICE + '\n' + NOTES)
-        history = gr.State([])
-        
+tokenizer = None
+model = None
 
-        submitBtn.click(predict, [user_input, image_path, chatbot, max_length, top_p, temperature, history], [chatbot, history],
-                        show_progress=True)
-        image_path.upload(predict_new_image, [image_path, chatbot, max_length, top_p, temperature], [chatbot, history],
-                        show_progress=True)
-        image_path.clear(reset_state, outputs=[image_path, chatbot, history], show_progress=True)
-        submitBtn.click(reset_user_input, [], [user_input])
-        emptyBtn.click(reset_state, outputs=[image_path, chatbot, history], show_progress=True)
+if not tokenizer:
+    tokenizer = AutoTokenizer.from_pretrained("/data/visualglm-6b", trust_remote_code=True)
+if not model:
+    if args.quant in [4, 8]:
+        model = AutoModel.from_pretrained("/data/visualglm-6b", trust_remote_code=True).quantize(args.quant).half().cuda()
+    else:
+        model = AutoModel.from_pretrained("/data/visualglm-6b", trust_remote_code=True).half().cuda()
+    model = model.eval()
 
-        print(gr.__version__)
+with gr.Blocks(css='style.css') as demo:
+    gr.HTML(DESCRIPTION)
 
-        demo.queue(concurrency_count=10).launch(share=False, auth=("test", "258258258"), inbrowser=False, server_name='0.0.0.0', server_port=6006)
+    with gr.Row():
+        with gr.Column(scale=2):
+            image_path = gr.Image(type="filepath", label="Image Prompt", value=None).style(height=504)
+        with gr.Column(scale=4):
+            chatbot = gr.Chatbot().style(height=480)
+    with gr.Row():
+        with gr.Column(scale=2, min_width=100):
+            max_length = gr.Slider(0, 4096, value=2048, step=1.0, label="Maximum length", interactive=True)
+            top_p = gr.Slider(0, 1, value=0.4, step=0.01, label="Top P", interactive=True)
+            temperature = gr.Slider(0, 1, value=0.8, step=0.01, label="Temperature", interactive=True)
+        with gr.Column(scale=4):
+            with gr.Box():
+                with gr.Row():
+                    with gr.Column(scale=2):
+                        user_input = gr.Textbox(show_label=False, placeholder="Input...", lines=4).style(
+                            container=False)
+                    with gr.Column(scale=1, min_width=64):
+                        submitBtn = gr.Button("Submit", variant="primary")
+                        emptyBtn = gr.Button("Clear History")
+                gr.Markdown("网站名称：魔法乐园 备案号：[闽ICP备2022018097号-9](https://beian.miit.gov.cn) 公司名称： 厦门慧快脉信息技术有限公司")
+    history = gr.State([])
 
-if __name__ == '__main__':
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--quant", choices=[8, 4], type=int, default=None)
-    parser.add_argument("--share", action="store_true")
-    args = parser.parse_args()
-    main(args)
+
+    submitBtn.click(predict, [user_input, image_path, chatbot, max_length, top_p, temperature, history], [chatbot, history],
+                    show_progress=True)
+    image_path.upload(predict_new_image, [image_path, chatbot, max_length, top_p, temperature], [chatbot, history],
+                      show_progress=True)
+    image_path.clear(reset_state, outputs=[image_path, chatbot, history], show_progress=True)
+    submitBtn.click(reset_user_input, [], [user_input])
+    emptyBtn.click(reset_state, outputs=[image_path, chatbot, history], show_progress=True)
+
+demo.queue(concurrency_count=10).launch(share=False, inbrowser=False, server_name='0.0.0.0', server_port=7860)
+
+# if __name__ == '__main__':
+#     print(gr.__version__)
+#     demo.launch(server_port=6006)
+#demo.queue(concurrency_count=10).launch(share=False, inbrowser=False, server_name='0.0.0.0', server_port=6006)
+#demo.queue(concurrency_count=10).launch(share=False, auth=("test", "258258258"), inbrowser=False, server_name='0.0.0.0', server_port=6006)
