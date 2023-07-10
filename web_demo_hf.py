@@ -101,14 +101,14 @@ args, unknown = parser.parse_known_args()
 tokenizer = None
 model = None
 
-if not tokenizer:
-    tokenizer = AutoTokenizer.from_pretrained("/data/visualglm-6b", trust_remote_code=True)
-if not model:
-    if args.quant in [4, 8]:
-        model = AutoModel.from_pretrained("/data/visualglm-6b", trust_remote_code=True).quantize(args.quant).half().cuda()
-    else:
-        model = AutoModel.from_pretrained("/data/visualglm-6b", trust_remote_code=True).half().cuda()
-    model = model.eval()
+# if not tokenizer:
+#     tokenizer = AutoTokenizer.from_pretrained("/data/visualglm-6b", trust_remote_code=True)
+# if not model:
+#     if args.quant in [4, 8]:
+#         model = AutoModel.from_pretrained("/data/visualglm-6b", trust_remote_code=True).quantize(args.quant).half().cuda()
+#     else:
+#         model = AutoModel.from_pretrained("/data/visualglm-6b", trust_remote_code=True).half().cuda()
+#     model = model.eval()
 
 with gr.Blocks(css='style.css') as demo:
     gr.HTML(DESCRIPTION)
